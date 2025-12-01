@@ -1,0 +1,67 @@
+### Try to get session (should fail, not authorized)
+GET {{baseUrl}}/api/account/session
+
+### Login
+POST {{baseUrl}}/api/account/login
+Content-Type: application/json
+
+{
+  "username": "{{username}}",
+  "password": "{{password}}"
+}
+
+> {%
+    client.global.set("access_token", response.body.accessToken);
+    client.global.set("refresh_token", response.body.refreshToken);
+    client.global.set("access_token_initial", response.body.accessToken);
+    client.global.set("refresh_token_initial", response.body.refreshToken);
+%}
+
+### Try to get session (should succeed, authorized, with initial access token)
+GET {{baseUrl}}/api/account/session
+Authorization: Bearer {{access_token_initial}}
+
+### Refresh token (should succeed)
+POST {{baseUrl}}/api/account/refresh
+Content-Type: application/json
+
+{
+  "accessToken": "{{access_token}}",
+  "refreshToken": "{{refresh_token}}"
+}
+
+> {%
+    client.global.set("access_token", response.body.accessToken);
+    client.global.set("refresh_token", response.body.refreshToken);
+    client.global.set("access_token_refreshed", response.body.accessToken);
+    client.global.set("refresh_token_refreshed", response.body.refreshToken);
+%}
+
+### Try to get session (should succeed, authorized, with refreshed access token)
+GET {{baseUrl}}/api/account/session
+Authorization: Bearer {{access_token_refreshed}}
+
+### Logout (should succeed)
+POST {{baseUrl}}/api/account/logout
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{}
+
+### Try to refresh token with initial refresh token (should fail)
+POST {{baseUrl}}/api/account/refresh
+Content-Type: application/json
+
+{
+  "accessToken": "{{access_token}}",
+  "refreshToken": "{{refresh_token_initial}}"
+}
+
+### Try to refresh token with refreshed refresh token (should fail)
+POST {{baseUrl}}/api/account/refresh
+Content-Type: application/json
+
+{
+  "accessToken": "{{access_token}}",
+  "refreshToken": "{{refresh_token_refreshed}}"
+}
