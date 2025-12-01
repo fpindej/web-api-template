@@ -19,8 +19,20 @@ public class MyProjectDbContext(DbContextOptions options)
 
         // Seed default roles
         modelBuilder.Entity<ApplicationRole>().HasData(
-            new ApplicationRole { Id = "1", Name = "User", NormalizedName = "USER" },
-            new ApplicationRole { Id = "2", Name = "Admin", NormalizedName = "ADMIN" }
+            new ApplicationRole
+            {
+                Id = "1",
+                Name = "User",
+                NormalizedName = "USER",
+                ConcurrencyStamp = "76b99507-9cf8-4708-9fe8-4dc4e9ea09ae"
+            },
+            new ApplicationRole
+            {
+                Id = "2",
+                Name = "Admin",
+                NormalizedName = "ADMIN",
+                ConcurrencyStamp = "971e674f-c4fb-4bb2-9170-3ad7a753182c"
+            }
         );
     }
 }

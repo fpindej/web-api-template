@@ -1,7 +1,6 @@
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.OpenApi.Models;
 using MyProject.Infrastructure.Features.Authentication.Extensions;
 using MyProject.Infrastructure.Features.Postgres.Extensions;
 using MyProject.WebApi.Extensions;
@@ -58,37 +57,7 @@ try
     if (!builder.Environment.IsProduction())
     {
         Log.Debug("ConfigureServices => Setting AddOpenApi");
-        builder.Services.AddOpenApi("v1",
-            opt => { opt.AddDocumentTransformer<BearerSecuritySchemeTransformer>(); });
-
-        Log.Debug("ConfigureServices => Setting AddSwaggerGen");
-        builder.Services.AddSwaggerGen(c =>
-        {
-            c.SwaggerDoc("v1", new OpenApiInfo { Title = "MyProject API", Version = "v1" });
-
-            c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-            {
-                Type = SecuritySchemeType.Http,
-                Scheme = "bearer",
-                BearerFormat = "JWT",
-                In = ParameterLocation.Header,
-                Description = "JWT Bearer token"
-            });
-
-            c.AddSecurityDefinition("Cookie", new OpenApiSecurityScheme
-            {
-                Type = SecuritySchemeType.ApiKey,
-                Name = "Cookie",
-                In = ParameterLocation.Cookie,
-                Description = "Authentication cookie"
-            });
-
-            c.AddSecurityRequirement(new OpenApiSecurityRequirement
-            {
-                { new OpenApiSecurityScheme { Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" } }, Array.Empty<string>() },
-                { new OpenApiSecurityScheme { Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Cookie" } }, Array.Empty<string>() }
-            });
-        });
+        builder.Services.AddOpenApi("v1");
     }
 
     var app = builder.Build();
@@ -118,15 +87,6 @@ try
             opt.WithTitle("MyProject API");
             opt.WithTheme(ScalarTheme.Mars);
             opt.WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
-        });
-
-        Log.Debug("Enabling Swagger UI");
-        app.UseSwaggerUI(c =>
-        {
-            c.SwaggerEndpoint("/openapi/v1.json", "MyProject API V1");
-            c.RoutePrefix = "swagger";
-            // Enable sending cookies with API requests from Swagger UI
-            c.ConfigObject.AdditionalItems.Add("withCredentials", true);
         });
     }
 
