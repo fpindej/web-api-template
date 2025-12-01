@@ -149,7 +149,15 @@ if ($migConfirm -eq "y" -or $migConfirm -eq "Y") {
 
     Write-Host "Building project and adding Initial migration..."
     
-    dotnet ef migrations add Initial --project "src\$NewName.Infrastructure" --startup-project "src\$NewName.WebApi" --output-dir Features/Postgres/Migrations
+    # Restore and build explicitly
+    Write-Host "Restoring dependencies..."
+    dotnet restore "src\$NewName.WebApi"
+
+    Write-Host "Building project..."
+    dotnet build "src\$NewName.WebApi" --no-restore
+
+    Write-Host "Running migrations..."
+    dotnet ef migrations add Initial --project "src\$NewName.Infrastructure" --startup-project "src\$NewName.WebApi" --output-dir Features/Postgres/Migrations --no-build
     
     Write-Host "Migration 'Initial' created successfully."
 

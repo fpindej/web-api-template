@@ -134,10 +134,19 @@ if [[ "$MIGRATION_CONFIRM" == "y" || "$MIGRATION_CONFIRM" == "Y" ]]; then
         dotnet tool install --global dotnet-ef || echo "Failed to install dotnet-ef. Please install it manually."
     fi
 
+    # Restore and build explicitly
+    echo "Restoring dependencies..."
+    dotnet restore "src/$NEW_NAME.WebApi"
+
+    echo "Building project..."
+    dotnet build "src/$NEW_NAME.WebApi" --no-restore
+
+    echo "Running migrations..."
     dotnet ef migrations add Initial \
         --project "src/$NEW_NAME.Infrastructure" \
         --startup-project "src/$NEW_NAME.WebApi" \
-        --output-dir Features/Postgres/Migrations
+        --output-dir Features/Postgres/Migrations \
+        --no-build
 
     echo "Migration 'Initial' created successfully."
 
