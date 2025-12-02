@@ -127,11 +127,15 @@ internal class AuthenticationService(
 
         if (storedToken is null)
         {
+            DeleteCookie(CookieNames.AccessToken);
+            DeleteCookie(CookieNames.RefreshToken);
             return Result.Failure("Invalid refresh token.");
         }
 
         if (storedToken.Invalidated)
         {
+            DeleteCookie(CookieNames.AccessToken);
+            DeleteCookie(CookieNames.RefreshToken);
             return Result.Failure("Invalid refresh token.");
         }
 
@@ -140,6 +144,8 @@ internal class AuthenticationService(
             // Security alert: Token reuse! Revoke all tokens for this user.
             storedToken.Invalidated = true;
             await RevokeUserTokens(storedToken.UserId);
+            DeleteCookie(CookieNames.AccessToken);
+            DeleteCookie(CookieNames.RefreshToken);
             return Result.Failure("Invalid refresh token.");
         }
 
@@ -147,6 +153,8 @@ internal class AuthenticationService(
         {
             storedToken.Invalidated = true;
             await dbContext.SaveChangesAsync(cancellationToken);
+            DeleteCookie(CookieNames.AccessToken);
+            DeleteCookie(CookieNames.RefreshToken);
             return Result.Failure("Refresh token has expired.");
         }
 
