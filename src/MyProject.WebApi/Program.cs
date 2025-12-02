@@ -5,6 +5,8 @@ using MyProject.Infrastructure.Features.Authentication.Extensions;
 using MyProject.Infrastructure.Features.Postgres.Extensions;
 using MyProject.WebApi.Extensions;
 using MyProject.WebApi.Middlewares;
+using MyProject.WebApi.Features.Cors.Extensions;
+using MyProject.WebApi.Features.Cors.Options;
 using Scalar.AspNetCore;
 using Serilog;
 using LoggerConfigurationExtensions = MyProject.Infrastructure.Logging.Extensions.LoggerConfigurationExtensions;
@@ -40,6 +42,9 @@ try
         Log.Fatal(ex, "Failed to configure essential services or dependencies.");
         throw;
     }
+
+    Log.Debug("Adding Cors Feature");
+    builder.Services.AddCors(builder.Configuration);
 
     Log.Debug("Adding Controllers");
     builder.Services.AddControllers();
@@ -99,14 +104,8 @@ try
         await app.SeedIdentityUsersAsync();
     }
 
-    Log.Debug("Setting cors => allow *");
-    app.UseCors(b =>
-    {
-        b.SetIsOriginAllowed(_ => true);
-        b.AllowAnyHeader();
-        b.AllowAnyMethod();
-        b.AllowCredentials();
-    });
+    Log.Debug("Setting UseCors");
+    IApplicationBuilderExtensions.UseCors(app);
 
     Log.Debug("Setting UseSerilogRequestLogging");
     app.UseSerilogRequestLogging();
