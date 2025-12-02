@@ -54,11 +54,8 @@ try
     Log.Debug("ConfigureServices => Setting AddHealthChecks");
     builder.Services.AddHealthChecks();
 
-    if (!builder.Environment.IsProduction())
-    {
-        Log.Debug("ConfigureServices => Setting AddOpenApi");
-        builder.Services.AddOpenApi("v1");
-    }
+    Log.Debug("ConfigureServices => Setting AddApiDefinition");
+    builder.Services.AddApiDefinition();
 
     var app = builder.Build();
 
