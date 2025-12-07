@@ -137,6 +137,51 @@ public static class ServiceCollectionExtensions
 - `access_token` - JWT access token
 - `refresh_token` - Refresh token for rotation
 
+## Project Initialization
+
+### Using the Init Scripts
+The template includes initialization scripts that rename the project and configure ports automatically.
+
+**For Windows (PowerShell):**
+```powershell
+.\init.ps1
+
+# Or with parameters to skip prompts:
+.\init.ps1 -NewName "MyAwesomeApi" -BasePort 14000
+```
+
+**For macOS / Linux:**
+```bash
+chmod +x init.sh
+./init.sh
+```
+
+### What the Init Script Does
+
+1. **Prompts for project name** (e.g., `MyAwesomeApi`)
+2. **Prompts for base port** (default: `13000`)
+   - API runs on `BasePort + 2` (e.g., `13002`)
+   - Database runs on `BasePort + 4` (e.g., `13004`)
+3. **Updates Docker ports** in `docker-compose.local.yml`
+4. **Updates configuration files**:
+   - `appsettings.Development.json` (DB connection)
+   - `http-client.env.json` (API URL for testing)
+5. **Renames all files, directories, and namespaces** from `MyProject` to your project name
+6. **Offers to commit** the rename changes
+7. **Offers to create fresh Initial migration**:
+   - Removes existing migrations
+   - Restores .NET tools (`dotnet-ef`)
+   - Builds the project
+   - Creates new `Initial` migration
+8. **Offers to commit** the migration
+
+### Port Configuration
+
+| Service | Port Formula | Default |
+|---------|--------------|---------|
+| API | BasePort + 2 | 13002 |
+| PostgreSQL | BasePort + 4 | 13004 |
+
 ## Development Workflow
 
 ### Running Locally

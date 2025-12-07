@@ -262,10 +262,72 @@ The API uses cookie-based JWT authentication:
 }
 ```
 
+## Project Initialization
+
+### Using the Init Scripts
+
+The template includes scripts to rename the project and configure ports. **Run this first when starting a new project.**
+
+**Windows (PowerShell):**
+```powershell
+# Interactive mode
+.\init.ps1
+
+# Non-interactive with parameters
+.\init.ps1 -NewName "MyAwesomeApi" -BasePort 14000
+```
+
+**macOS / Linux:**
+```bash
+chmod +x init.sh
+./init.sh
+```
+
+### Init Script Workflow
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  1. Enter Project Name (e.g., MyAwesomeApi)                 │
+│  2. Enter Base Port (default: 13000)                        │
+│     → API: BasePort + 2 (13002)                             │
+│     → DB:  BasePort + 4 (13004)                             │
+├─────────────────────────────────────────────────────────────┤
+│  3. Updates docker-compose.local.yml ports                  │
+│  4. Updates appsettings.Development.json (DB port)          │
+│  5. Updates http-client.env.json (API URL)                  │
+│  6. Renames all files/folders/namespaces                    │
+├─────────────────────────────────────────────────────────────┤
+│  7. (Optional) Git commit rename changes                    │
+│  8. (Optional) Create fresh Initial migration               │
+│     → Restores dotnet-ef tool                               │
+│     → Builds project                                        │
+│     → Creates migration                                     │
+│  9. (Optional) Git commit migration                         │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Port Configuration Reference
+
+| Service | Formula | Default Port |
+|---------|---------|--------------|
+| Web API | `BasePort + 2` | 13002 |
+| PostgreSQL | `BasePort + 4` | 13004 |
+
+### Files Modified by Init Script
+
+| File | Changes |
+|------|---------|
+| `docker-compose.local.yml` | Port mappings |
+| `appsettings.Development.json` | Database connection port |
+| `http-client.env.json` | API base URL |
+| All `*.cs`, `*.csproj`, `*.sln` files | Namespace/project references |
+| All directories containing `MyProject` | Renamed to new project name |
+
 ## Important Files
 
 | File | Purpose |
 |------|---------|
+| `init.ps1` / `init.sh` | Project initialization and renaming scripts |
 | `Program.cs` | Application startup and middleware pipeline |
 | `MyProjectDbContext.cs` | EF Core DbContext with role seeding |
 | `AuthenticationService.cs` | JWT/cookie auth implementation |
