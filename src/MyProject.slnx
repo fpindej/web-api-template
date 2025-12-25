@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/solution items/">
     <File Path="../docker-compose.local.yml" />
+    <File Path="..\nuget.config" />
     <File Path="MyProject.WebApi/Dockerfile" />
   </Folder>
   <Project Path="MyProject.Application/MyProject.Application.csproj" />
