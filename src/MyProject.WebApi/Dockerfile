@@ -9,12 +9,22 @@ RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
-# Copy csproj and restore as distinct layers
-COPY ["MyProject.WebApi/MyProject.WebApi.csproj", "MyProject.WebApi/"]
+# Copy solution-wide config files
+COPY ["Directory.Build.props", "."]
+COPY ["Directory.Packages.props", "."]
+COPY ["nuget.config", "."]
+
+# Copy csproj files
+COPY ["src/MyProject.Domain/MyProject.Domain.csproj", "MyProject.Domain/"]
+COPY ["src/MyProject.Application/MyProject.Application.csproj", "MyProject.Application/"]
+COPY ["src/MyProject.Infrastructure/MyProject.Infrastructure.csproj", "MyProject.Infrastructure/"]
+COPY ["src/MyProject.WebApi/MyProject.WebApi.csproj", "MyProject.WebApi/"]
+
+# Restore dependencies
 RUN dotnet restore "MyProject.WebApi/MyProject.WebApi.csproj"
 
 # Copy the entire source code
-COPY . .
+COPY src/ .
 
 # Build the application
 WORKDIR "/src/MyProject.WebApi"
