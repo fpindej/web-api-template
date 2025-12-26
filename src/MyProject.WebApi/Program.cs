@@ -3,6 +3,9 @@ using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.HttpOverrides;
 using MyProject.Infrastructure.Features.Authentication.Extensions;
 using MyProject.Infrastructure.Persistence.Extensions;
+using MyProject.Infrastructure.Caching.Extensions;
+using MyProject.Infrastructure.Cookies.Extensions;
+using MyProject.Infrastructure.Identity.Extensions;
 using MyProject.WebApi.Extensions;
 using MyProject.WebApi.Middlewares;
 using Scalar.AspNetCore;
@@ -34,6 +37,15 @@ try
 
         Log.Debug("Adding identity services");
         builder.Services.AddIdentityServices(builder.Configuration);
+
+        Log.Debug("Adding user context");
+        builder.Services.AddUserContext();
+
+        Log.Debug("Adding caching");
+        builder.Services.AddCaching();
+
+        Log.Debug("Adding cookie services");
+        builder.Services.AddCookieServices();
     }
     catch (Exception ex)
     {
