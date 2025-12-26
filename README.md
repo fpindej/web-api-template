@@ -6,7 +6,8 @@ This repository serves as a robust starting point for building .NET Web APIs. It
 
 *   **Clean Architecture:** Organized into Domain, Application, Infrastructure, and WebApi layers.
 *   **Database:** Pre-configured PostgreSQL connection with Entity Framework Core.
-*   **Identity:** Built-in authentication system (JWT/Cookie-based).
+*   **Identity:** Built-in authentication system (JWT in Secure HttpOnly cookies).
+*   **Security:** Automated auditing, secure cookie management, and user context abstraction.
 *   **Containerization:** Ready-to-use `Dockerfile` and `docker-compose` setup.
 *   **Tooling:** Includes initialization scripts to rename the project and set up ports automatically.
 
@@ -67,13 +68,13 @@ docker compose -f docker-compose.local.yml up -d
 ```
 
 The API will be available at `http://localhost:<API_PORT>` (e.g., `http://localhost:13002`).
-The Swagger UI can be accessed at `http://localhost:<API_PORT>/swagger` (if configured in development).
+The Scalar API reference can be accessed at `http://localhost:<API_PORT>/scalar/v1` (in development).
 
 ## Project Structure
 
 *   **src/MyProject.Domain**: Contains enterprise logic and entities.
 *   **src/MyProject.Application**: Contains application logic, interfaces, and DTOs.
-*   **src/MyProject.Infrastructure**: Contains implementation of interfaces (EF Core, external services).
+*   **src/MyProject.Infrastructure**: Contains implementation of interfaces (EF Core, Caching, Cookies, Identity).
 *   **src/MyProject.WebApi**: The entry point of the application (Controllers, Middleware).
 
 ## Database Migrations
