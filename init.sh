@@ -160,4 +160,12 @@ fi
 
 echo "--------------------------------------------------"
 echo "Initialization complete!"
-echo "You can now run: docker compose -f docker-compose.local.yml up -d"
+
+read -p "Do you want to start the application now (docker compose up)? (y/n): " DOCKER_CONFIRM
+if [[ "$DOCKER_CONFIRM" == "y" || "$DOCKER_CONFIRM" == "Y" ]]; then
+    echo "Starting application..."
+    docker compose -f docker-compose.local.yml up -d --build
+else
+    echo "You can run the application later with:"
+    echo "docker compose -f docker-compose.local.yml up -d --build"
+fi

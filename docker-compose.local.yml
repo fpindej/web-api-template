@@ -21,8 +21,8 @@ x-common-settings: &common-settings
 services:
   api:
     build:
-      context: ./src
-      dockerfile: MyProject.WebApi/Dockerfile
+      context: .
+      dockerfile: src/MyProject.WebApi/Dockerfile
     container_name: myproject-local-api
     environment: *api-environment
     <<: *common-settings

@@ -177,4 +177,12 @@ if ($migConfirm -eq "y" -or $migConfirm -eq "Y") {
 
 Write-Host "--------------------------------------------------"
 Write-Host "Initialization complete!"
-Write-Host "You can now run: docker compose -f docker-compose.local.yml up -d"
+
+$dockerConfirm = Read-Host "Do you want to start the application now (docker compose up)? (y/n)"
+if ($dockerConfirm -eq "y" -or $dockerConfirm -eq "Y") {
+    Write-Host "Starting application..."
+    docker compose -f docker-compose.local.yml up -d --build
+} else {
+    Write-Host "You can run the application later with:"
+    Write-Host "docker compose -f docker-compose.local.yml up -d --build"
+}
