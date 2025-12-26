@@ -1,5 +1,4 @@
 using System.Linq.Expressions;
-using MyProject.Application;
 using MyProject.Domain;
 using MyProject.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -8,7 +7,7 @@ using MyProject.Infrastructure.Persistence.Extensions;
 
 namespace MyProject.Infrastructure.Persistence;
 
-internal class BaseEntityRepository<TEntity>(MyProjectDbContext dbContext, TimeProvider timeProvider)
+internal class BaseEntityRepository<TEntity>(MyProjectDbContext dbContext)
     : IBaseEntityRepository<TEntity>
     where TEntity : BaseEntity
 {
@@ -70,8 +69,7 @@ internal class BaseEntityRepository<TEntity>(MyProjectDbContext dbContext, TimeP
             return Result<TEntity>.Failure($"Entity with ID {id} not found or already deleted.");
         }
 
-        var utcNow = timeProvider.GetUtcNow().UtcDateTime;
-        entity.SoftDelete(utcNow);
+        entity.SoftDelete();
         _dbSet.Update(entity);
         return Result<TEntity>.Success(entity);
     }
@@ -84,8 +82,7 @@ internal class BaseEntityRepository<TEntity>(MyProjectDbContext dbContext, TimeP
             return Result<TEntity>.Failure($"Entity with ID {id} not found or not deleted.");
         }
 
-        var utcNow = timeProvider.GetUtcNow().UtcDateTime;
-        entity.Restore(utcNow);
+        entity.Restore();
         _dbSet.Update(entity);
         return Result<TEntity>.Success(entity);
     }
