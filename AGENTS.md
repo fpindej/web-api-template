@@ -9,7 +9,7 @@ This document provides AI agents with context about the codebase structure, conv
 | **Framework** | .NET 10 / C# 13 |
 | **Architecture** | Clean Architecture (4 layers) |
 | **Database** | PostgreSQL + EF Core |
-| **Auth** | JWT in HttpOnly cookies |
+| **Auth** | JWT in Secure HttpOnly cookies |
 | **Validation** | FluentValidation |
 | **Logging** | Serilog |
 | **Docs** | Scalar (OpenAPI) |
@@ -23,23 +23,30 @@ src/
 │   └── Result.cs               # Result pattern implementation
 │
 ├── MyProject.Application/      # Application contracts
+│   ├── Caching/                # Caching interfaces
+│   ├── Cookies/                # Cookie management interfaces
 │   ├── Features/               # Feature-based organization
 │   │   └── {Feature}/
 │   │       ├── I{Service}.cs   # Service interface
 │   │       └── Dtos/           # Input/Output DTOs
+│   ├── Identity/               # User identity interfaces
 │   └── Persistence/            # Repository interfaces
 │
 ├── MyProject.Infrastructure/   # Implementation layer
-│   ├── Features/
+│   ├── Caching/                # Distributed caching implementation
+│   ├── Cookies/                # Cookie service implementation
+│   ├── Features/               # Feature-based organization
 │   │   └── {Feature}/
 │   │       ├── Services/       # Service implementations
 │   │       ├── Models/         # EF entities (if different from domain)
 │   │       ├── Configurations/ # EF type configurations
 │   │       ├── Extensions/     # DI registration
 │   │       └── Options/        # Configuration options
+│   ├── Identity/               # User identity implementation
 │   ├── Persistence/
 │   │   ├── MyProjectDbContext.cs
 │   │   ├── Extensions/         # EF helpers, query extensions
+│   │   ├── Interceptors/       # EF Core interceptors (Auditing, etc.)
 │   │   └── Configurations/     # Shared EF configurations
 │   └── Logging/                # Serilog configuration
 │
@@ -117,9 +124,9 @@ internal class MyService(
 }
 ```
 
-### 4. Entity Configuration
+### 4. Entity Configuration & Auditing
 
-Entities extend `BaseEntity` and use Fluent API configuration:
+Entities extend `BaseEntity` and use Fluent API configuration. Auditing fields (`CreatedAt`, `CreatedBy`, `UpdatedAt`, `UpdatedBy`) are automatically managed by `AuditingInterceptor`.
 
 ```csharp
 // Domain entity
@@ -129,9 +136,10 @@ public class MyEntity : BaseEntity
     
     protected MyEntity() { } // EF constructor
     
-    public MyEntity(string name, DateTime createdAt) : base(createdAt)
+    public MyEntity(string name)
     {
         Name = name;
+        // CreatedAt is handled by interceptor
     }
 }
 
@@ -175,6 +183,38 @@ public class MyController(IMyService service) : ControllerBase
         if (!result.IsSuccess)
             return BadRequest(result.Error);
         return CreatedAtAction(nameof(Get), new { id = result.Value });
+    }
+}
+```
+
+### 7. User Context
+
+Access the current user's ID safely in any layer using `IUserContext`:
+
+```csharp
+public class MyService(IUserContext userContext)
+{
+    public void DoSomething()
+    {
+        var userId = userContext.UserId; // Returns Guid?
+        if (!userId.HasValue) throw new UnauthorizedAccessException();
+    }
+}
+```
+
+### 8. Caching
+
+Use `ICacheService` for distributed caching (Redis/Memory):
+
+```csharp
+public class MyService(ICacheService cache)
+{
+    public async Task<Data> GetDataAsync(Guid id)
+    {
+        return await cache.GetOrCreateAsync(
+            key: $"data:{id}",
+            factory: () => repository.GetByIdAsync(id),
+            expiration: TimeSpan.FromMinutes(10));
     }
 }
 ```
@@ -331,6 +371,8 @@ chmod +x init.sh
 | `Program.cs` | Application startup and middleware pipeline |
 | `MyProjectDbContext.cs` | EF Core DbContext with role seeding |
 | `AuthenticationService.cs` | JWT/cookie auth implementation |
+| `UserService.cs` | User management and retrieval |
+| `AuditingInterceptor.cs` | Automated entity auditing |
 | `ExceptionHandlingMiddleware.cs` | Global error handling |
 | `Result.cs` | Result pattern for error handling |
 | `BaseEntity.cs` | Base entity with audit fields and soft delete |
